@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SchemeMatch India – Find government schemes you qualify for</title>
+  <meta name="description" content="Answer a few questions and see the Indian government schemes you are eligible for, with plain-English summaries and where to apply." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind (CDN) + FontAwesome (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:    { 50: '#eef1fa', 100: '#dde3f4', 200: '#b9c5e8', 700: '#243a7a', 800: '#1a2b5f', 900: '#111d45', 950: '#0b1330' },
+            saffron: { 50: '#fff5e8', 100: '#ffe6c7', 400: '#ffa43d', 500: '#f58a1f', 600: '#d96f0b', 700: '#b35609' },
+            leaf:    { 50: '#ecf8f1', 600: '#17804f', 700: '#126541' }
+          },
+          fontFamily: {
+            serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+            sans:  ['"Noto Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans', system-ui, sans-serif; }
+    .font-serif { font-feature-settings: "lnum"; }
+    /* Skeleton shimmer */
+    @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+    .skeleton {
+      background: linear-gradient(90deg, #e8ebf3 25%, #f4f6fb 50%, #e8ebf3 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .skeleton { animation: none; }
+      * { transition: none !important; }
+    }
+    .card-in { animation: cardIn .25s ease-out both; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .card-in { animation: none; } }
+  </style>
+</head>
+
+<body class="bg-navy-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- ============ HEADER ============ -->
+  <header class="bg-navy-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="#" class="flex items-center gap-3 min-w-0" aria-label="SchemeMatch India home">
+        <span class="grid place-items-center w-10 h-10 rounded-lg bg-saffron-500 text-navy-950 shrink-0">
+          <i class="fa-solid fa-hand-holding-heart text-lg" aria-hidden="true"></i>
+        </span>
+        <span class="min-w-0">
+          <span class="block font-serif text-xl sm:text-2xl font-bold leading-none truncate">SchemeMatch India</span>
+          <span class="hidden sm:block text-xs text-navy-200 mt-1">Right scheme. Right citizen. Three simple questions.</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <span id="serverStatus" class="hidden md:inline-flex items-center gap-2 text-xs text-navy-200" role="status">
+          <span class="w-2 h-2 rounded-full bg-slate-400" id="serverDot"></span>
+          <span id="serverStatusText">Connecting…</span>
+        </span>
+        <span class="inline-flex items-center gap-2 rounded-full border border-saffron-400 bg-saffron-500/10 text-saffron-400 text-xs sm:text-sm font-semibold px-3 py-1.5">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-saffron-400 opacity-75 motion-reduce:animate-none"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-saffron-400"></span>
+          </span>
+          BITM Hackathon Live
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ INTRO BAND ============ -->
+  <section class="bg-navy-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <h1 class="font-serif text-3xl sm:text-4xl font-bold max-w-3xl leading-tight">
+        Find the government schemes you already qualify for
+      </h1>
+      <p class="mt-3 text-navy-200 max-w-2xl text-base sm:text-lg leading-relaxed">
+        Pensions, scholarships, housing grants and disability aids, explained in plain English with the office to visit and where to apply.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[21rem_1fr] gap-6 lg:gap-8 items-start">
+
+      <!-- ===== SIDEBAR: ELIGIBILITY FORM ===== -->
+      <aside class="lg:sticky lg:top-24" aria-labelledby="formTitle">
+        <form id="eligibilityForm" class="bg-white rounded-2xl border border-navy-100 shadow-sm overflow-hidden" novalidate>
+          <div class="px-5 py-4 border-b border-navy-100 bg-white">
+            <h2 id="formTitle" class="font-serif text-xl font-bold text-navy-900">Check your eligibility</h2>
+            <p class="text-sm text-slate-600 mt-1">Your details stay in this browser. Nothing is stored.</p>
+          </div>
+
+          <div class="px-5 py-5 space-y-5">
+            <!-- Age -->
+            <div>
+              <label for="age" class="block text-sm font-semibold text-navy-900 mb-1.5">Age (years)</label>
+              <div class="relative">
+                <i class="fa-solid fa-cake-candles absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true"></i>
+                <input id="age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" placeholder="e.g. 62"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-3 py-2.5 text-base focus:border-navy-700 focus:ring-2 focus:ring-navy-200 outline-none"
+                  aria-describedby="ageError" />
+              </div>
+              <p id="ageError" class="hidden text-sm text-red-700 mt-1.5" role="alert"></p>
+            </div>
+
+            <!-- Income -->
+            <div>
+              <label for="income" class="block text-sm font-semibold text-navy-900 mb-1.5">Annual family income (₹)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold" aria-hidden="true">₹</span>
+                <input id="income" name="income" type="number" inputmode="numeric" min="0" step="1000" placeholder="e.g. 180000"
+                  class="w-full rounded-lg border border-slate-300 pl-9 pr-3 py-2.5 text-base focus:border-navy-700 focus:ring-2 focus:ring-navy-200 outline-none"
+                  aria-describedby="incomeHint incomeError" />
+              </div>
+              <p id="incomeHint" class="text-xs text-slate-500 mt-1.5">Total yearly income of everyone in your household.</p>
+              <p id="incomeError" class="hidden text-sm text-red-700 mt-1" role="alert"></p>
+            </div>
+
+            <!-- Caste -->
+            <div>
+              <label for="caste" class="block text-sm font-semibold text-navy-900 mb-1.5">Category</label>
+              <select id="caste" name="caste"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base bg-white focus:border-navy-700 focus:ring-2 focus:ring-navy-200 outline-none">
+                <option value="ALL">ALL (General / not listed below)</option>
+                <option value="OBC">OBC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+              </select>
+            </div>
+
+            <!-- Toggles -->
+            <div class="space-y-3 pt-1">
+              <label class="flex items-center justify-between gap-4 cursor-pointer rounded-lg border border-slate-200 px-3.5 py-3 hover:bg-navy-50">
+                <span class="flex items-center gap-3">
+                  <i class="fa-solid fa-wheelchair text-navy-700 w-5 text-center" aria-hidden="true"></i>
+                  <span class="text-sm font-semibold text-navy-900">Person with disability</span>
+                </span>
+                <span class="relative inline-flex shrink-0">
+                  <input id="disability" type="checkbox" class="peer sr-only" />
+                  <span class="block w-11 h-6 rounded-full bg-slate-300 peer-checked:bg-leaf-600 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-navy-700 transition-colors"></span>
+                  <span class="absolute left-0.5 top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                </span>
+              </label>
+
+              <label class="flex items-center justify-between gap-4 cursor-pointer rounded-lg border border-slate-200 px-3.5 py-3 hover:bg-navy-50">
+                <span class="flex items-center gap-3">
+                  <i class="fa-solid fa-graduation-cap text-navy-700 w-5 text-center" aria-hidden="true"></i>
+                  <span class="text-sm font-semibold text-navy-900">Currently a student</span>
+                </span>
+                <span class="relative inline-flex shrink-0">
+                  <input id="student" type="checkbox" class="peer sr-only" />
+                  <span class="block w-11 h-6 rounded-full bg-slate-300 peer-checked:bg-leaf-600 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-navy-700 transition-colors"></span>
+                  <span class="absolute left-0.5 top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="px-5 pb-5 space-y-2.5">
+            <button type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-navy-950 font-bold text-base py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-800 transition-colors">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              Find my schemes
+            </button>
+            <button type="button" id="resetBtn"
+              class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-navy-700 text-navy-800 hover:bg-navy-50 font-semibold text-sm py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-700 transition-colors">
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+              Reset and show all
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <!-- ===== RESULTS ===== -->
+      <section id="results" class="min-w-0" aria-labelledby="resultsHeading" tabindex="-1">
+
+        <!-- Results toolbar -->
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 id="resultsHeading" class="font-serif text-2xl sm:text-3xl font-bold text-navy-900">
+              <span id="resultCount" aria-live="polite">Loading schemes…</span>
+            </h2>
+            <p id="resultSubtext" class="text-sm text-slate-600 mt-1"></p>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm">
+            <label for="categoryFilter" class="sr-only">Filter by category</label>
+            <select id="categoryFilter" disabled
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-navy-700 focus:ring-2 focus:ring-navy-200 outline-none disabled:opacity-60">
+              <option value="">All categories</option>
+            </select>
+            <label for="sortBy" class="sr-only">Sort schemes</label>
+            <select id="sortBy" disabled
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-navy-700 focus:ring-2 focus:ring-navy-200 outline-none disabled:opacity-60">
+              <option value="benefit">Highest benefit first</option>
+              <option value="title">Title A to Z</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Active profile chips -->
+        <div id="profileChips" class="hidden flex-wrap gap-2 mb-5" aria-label="Your profile"></div>
+
+        <!-- Dynamic area -->
+        <div id="loadingState" class="grid gap-5 md:grid-cols-2 2xl:grid-cols-3" aria-hidden="true"></div>
+
+        <div id="errorState" class="hidden rounded-2xl border border-red-200 bg-white p-6 sm:p-8" role="alert">
+          <div class="flex items-start gap-4">
+            <span class="grid place-items-center w-12 h-12 rounded-full bg-red-50 text-red-700 shrink-0">
+              <i class="fa-solid fa-plug-circle-xmark text-xl" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h3 class="font-serif text-xl font-bold text-navy-900">We can't reach the SchemeMatch server</h3>
+              <p id="errorDetail" class="text-slate-700 mt-2"></p>
+              <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-1">
+                <li>Start the Spring Boot backend so it listens on <code class="bg-slate-100 rounded px-1.5 py-0.5 text-navy-800">localhost:8080</code>.</li>
+                <li>Allow this page to call it with <code class="bg-slate-100 rounded px-1.5 py-0.5 text-navy-800">@CrossOrigin</code> on your controller, or a global CORS config.</li>
+                <li>Check that <code class="bg-slate-100 rounded px-1.5 py-0.5 text-navy-800">GET /api/schemes</code> returns a JSON array.</li>
+              </ul>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button id="retryBtn" type="button"
+                  class="inline-flex items-center gap-2 rounded-lg bg-navy-800 hover:bg-navy-900 text-white font-semibold px-4 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-700">
+                  <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Try again
+                </button>
+                <button id="demoBtn" type="button"
+                  class="inline-flex items-center gap-2 rounded-lg border border-navy-700 text-navy-800 hover:bg-navy-50 font-semibold px-4 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-700">
+                  <i class="fa-solid fa-flask" aria-hidden="true"></i> Preview with sample data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="emptyState" class="hidden rounded-2xl border border-dashed border-navy-200 bg-white p-8 sm:p-12 text-center">
+          <span class="inline-grid place-items-center w-14 h-14 rounded-full bg-saffron-50 text-saffron-600 mb-4">
+            <i class="fa-regular fa-folder-open text-2xl" aria-hidden="true"></i>
+          </span>
+          <h3 class="font-serif text-xl font-bold text-navy-900">No schemes match this profile</h3>
+          <p class="text-slate-600 mt-2 max-w-md mx-auto">
+            Try a different age, income or category, or switch off the disability and student options. You can also see every scheme.
+          </p>
+          <button id="emptyResetBtn" type="button"
+            class="mt-5 inline-flex items-center gap-2 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-navy-950 font-bold px-5 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-800">
+            <i class="fa-solid fa-list" aria-hidden="true"></i> Show all schemes
+          </button>
+        </div>
+
+        <div id="demoBanner" class="hidden mb-4 rounded-lg border border-saffron-400 bg-saffron-50 text-saffron-700 px-4 py-2.5 text-sm">
+          <i class="fa-solid fa-triangle-exclamation mr-1.5" aria-hidden="true"></i>
+          Showing sample data for layout preview only. Amounts and rules are illustrative, not official.
+        </div>
+
+        <div id="cardGrid" class="grid gap-5 md:grid-cols-2 2xl:grid-cols-3"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="bg-navy-950 text-navy-200 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-sm flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+      <p><span class="font-semibold text-white">SchemeMatch India</span> – built for the BITM Hackathon.</p>
+      <p class="text-navy-200/80">Eligibility shown here is a guide. Confirm details on the official portal or at the local office before applying.</p>
+    </div>
+  </footer>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ================== CONFIG ================== */
+  const API_URL = 'http://localhost:8080/api/schemes';
+  const REQUEST_TIMEOUT_MS = 8000;
+
+  /* ================== STATE ================== */
+  const state = {
+    schemes: [],
+    profile: null,          // null = show everything
+    category: '',
+    sort: 'benefit',
+    usingDemo: false
+  };
+
+  /* ================== DOM ================== */
+  const $ = (id) => document.getElementById(id);
+  const el = {
+    form: $('eligibilityForm'), age: $('age'), income: $('income'), caste: $('caste'),
+    disability: $('disability'), student: $('student'),
+    ageError: $('ageError'), incomeError: $('incomeError'),
+    resetBtn: $('resetBtn'), emptyResetBtn: $('emptyResetBtn'), retryBtn: $('retryBtn'), demoBtn: $('demoBtn'),
+    results: $('results'), count: $('resultCount'), subtext: $('resultSubtext'),
+    categoryFilter: $('categoryFilter'), sortBy: $('sortBy'), chips: $('profileChips'),
+    loading: $('loadingState'), error: $('errorState'), errorDetail: $('errorDetail'),
+    empty: $('emptyState'), grid: $('cardGrid'), demoBanner: $('demoBanner'),
+    dot: $('serverDot'), statusText: $('serverStatusText')
+  };
+
+  /* ================== HELPERS ================== */
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const inr = (n) => '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  const safeUrl = (u) => (typeof u === 'string' && /^https?:\/\//i.test(u.trim())) ? u.trim() : null;
+  const safeTel = (t) => String(t ?? '').replace(/[^\d+]/g, '');
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  const CATEGORY_STYLES = [
+    'bg-navy-100 text-navy-800',
+    'bg-leaf-50 text-leaf-700',
+    'bg-purple-100 text-purple-800',
+    'bg-sky-100 text-sky-800',
+    'bg-rose-100 text-rose-800',
+    'bg-teal-100 text-teal-800'
+  ];
+  const categoryStyle = (cat) => {
+    let h = 0; const s = String(cat || '');
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return CATEGORY_STYLES[h % CATEGORY_STYLES.length];
+  };
+  const categoryIcon = (cat) => {
+    const c = String(cat || '').toLowerCase();
+    if (/pension|senior|old/.test(c)) return 'fa-person-cane';
+    if (/student|scholar|educat/.test(c)) return 'fa-graduation-cap';
+    if (/hous/.test(c)) return 'fa-house';
+    if (/disab|aid|divyang/.test(c)) return 'fa-wheelchair';
+    if (/health|medic/.test(c)) return 'fa-heart-pulse';
+    if (/farm|agri/.test(c)) return 'fa-wheat-awn';
+    return 'fa-landmark';
+  };
+
+  /* ================== ELIGIBILITY LOGIC ================== */
+  // A limit of 0/null/undefined is treated as "no limit" so incomplete backend data never hides schemes.
+  function matches(s, p) {
+    if (!p) return true;
+    const minAge = Number(s.minAge) || 0;
+    const maxAge = Number(s.maxAge) > 0 ? Number(s.maxAge) : Infinity;
+    if (p.age < minAge || p.age > maxAge) return false;
+
+    const cap = Number(s.maxAnnualIncome);
+    if (cap > 0 && p.income > cap) return false;
+
+    const sc = String(s.casteCategory || 'ALL').toUpperCase();
+    if (sc !== 'ALL' && sc !== p.caste) return false;
+
+    if (s.disabilityRequired && !p.disability) return false;
+    if (s.studentRequired && !p.student) return false;
+    return true;
+  }
+
+  function visibleSchemes() {
+    let list = state.schemes.filter((s) => matches(s, state.profile));
+    if (state.category) list = list.filter((s) => s.category === state.category);
+    list.sort(state.sort === 'title'
+      ? (a, b) => String(a.title).localeCompare(String(b.title))
+      : (a, b) => (Number(b.maxBenefitAmount) || 0) - (Number(a.maxBenefitAmount) || 0));
+    return list;
+  }
+
+  /* ================== DATA ================== */
+  async function loadSchemes() {
+    showLoading();
+    setStatus('connecting');
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(API_URL, { headers: { Accept: 'application/json' }, signal: ctrl.signal });
+      if (!res.ok) throw new HttpError(res.status);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('The server replied, but not with a list of schemes.');
+      state.schemes = data;
+      state.usingDemo = false;
+      setStatus('online');
+      afterDataLoaded();
+    } catch (err) {
+      state.schemes = [];
+      setStatus('offline');
+      showError(err);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  class HttpError extends Error { constructor(status) { super('HTTP ' + status); this.status = status; } }
+
+  function afterDataLoaded() {
+    populateCategories();
+    el.categoryFilter.disabled = false;
+    el.sortBy.disabled = false;
+    el.demoBanner.classList.toggle('hidden', !state.usingDemo);
+    render();
+  }
+
+  function populateCategories() {
+    const cats = [...new Set(state.schemes.map((s) => s.category).filter(Boolean))].sort();
+    el.categoryFilter.innerHTML = '<option value="">All categories</option>' +
+      cats.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    if (!cats.includes(state.category)) state.category = '';
+    el.categoryFilter.value = state.category;
+  }
+
+  /* ================== VIEW STATES ================== */
+  function hideAll() {
+    el.loading.classList.add('hidden');
+    el.error.classList.add('hidden');
+    el.empty.classList.add('hidden');
+    el.grid.classList.add('hidden');
+  }
+
+  function showLoading() {
+    hideAll();
+    el.loading.classList.remove('hidden');
+    el.demoBanner.classList.add('hidden');
+    el.count.textContent = 'Loading schemes…';
+    el.subtext.textContent = '';
+    el.loading.innerHTML = Array.from({ length: 6 }, () => `
+      <div class="bg-white rounded-2xl border border-navy-100 p-5 space-y-4">
+        <div class="flex justify-between"><div class="skeleton h-6 w-24 rounded-full"></div><div class="skeleton h-6 w-20 rounded-full"></div></div>
+        <div class="skeleton h-6 w-3/4 rounded"></div>
+        <div class="space-y-2"><div class="skeleton h-4 w-full rounded"></div><div class="skeleton h-4 w-11/12 rounded"></div><div class="skeleton h-4 w-2/3 rounded"></div></div>
+        <div class="skeleton h-10 w-full rounded-lg"></div>
+      </div>`).join('');
+  }
+
+  function showError(err) {
+    hideAll();
+    el.error.classList.remove('hidden');
+    el.chips.classList.add('hidden');
+    el.count.textContent = 'Schemes unavailable';
+    el.subtext.textContent = '';
+    el.categoryFilter.disabled = true;
+    el.sortBy.disabled = true;
+    let msg;
+    if (err instanceof HttpError) {
+      msg = `The server answered with status ${err.status}. Check the backend logs for the cause.`;
+    } else if (err && err.name === 'AbortError') {
+      msg = `The server at ${API_URL} did not respond within ${REQUEST_TIMEOUT_MS / 1000} seconds.`;
+    } else if (err instanceof TypeError) {
+      msg = `The browser could not connect to ${API_URL}. The server may be stopped, or it is blocking this page with CORS.`;
+    } else {
+      msg = (err && err.message) || 'Something unexpected went wrong while loading schemes.';
+    }
+    el.errorDetail.textContent = msg;
+  }
+
+  function setStatus(s) {
+    const map = {
+      connecting: ['bg-slate-400', 'Connecting…'],
+      online: ['bg-emerald-400', 'Server connected'],
+      offline: ['bg-red-400', 'Server unreachable']
+    };
+    el.dot.className = 'w-2 h-2 rounded-full ' + map[s][0];
+    el.statusText.textContent = map[s][1];
+  }
+
+  /* ================== RENDER ================== */
+  function render() {
+    hideAll();
+    renderChips();
+    const list = visibleSchemes();
+    const n = list.length;
+
+    el.count.textContent = n === 0 ? 'No schemes found' : `${plural(n, 'scheme', 'schemes')} ${state.profile ? 'match you' : 'available'}`;
+    el.subtext.textContent = state.profile
+      ? `Out of ${state.schemes.length} schemes in the database.`
+      : 'Enter your details on the left to see only the schemes you qualify for.';
+
+    if (n === 0) {
+      el.empty.classList.remove('hidden');
+      return;
+    }
+    el.grid.classList.remove('hidden');
+    el.grid.innerHTML = list.map((s, i) => cardHTML(s, i)).join('');
+  }
+
+  function renderChips() {
+    const p = state.profile;
+    if (!p) { el.chips.classList.add('hidden'); el.chips.innerHTML = ''; return; }
+    const chip = (icon, text) => `<span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-navy-200 text-navy-800 text-sm px-3 py-1"><i class="fa-solid ${icon} text-navy-700" aria-hidden="true"></i>${esc(text)}</span>`;
+    const parts = [
+      chip('fa-cake-candles', `Age ${p.age}`),
+      chip('fa-indian-rupee-sign', `Income ${inr(p.income)}`),
+      chip('fa-users', `Category ${p.caste}`)
+    ];
+    if (p.disability) parts.push(chip('fa-wheelchair', 'Person with disability'));
+    if (p.student) parts.push(chip('fa-graduation-cap', 'Student'));
+    el.chips.innerHTML = parts.join('');
+    el.chips.classList.remove('hidden');
+    el.chips.classList.add('flex');
+  }
+
+  function eligibilityTags(s) {
+    const tags = [];
+    const min = Number(s.minAge) || 0, max = Number(s.maxAge) || 0;
+    if (min > 0 && max > 0) tags.push(['fa-cake-candles', `Age ${min}–${max}`]);
+    else if (min > 0) tags.push(['fa-cake-candles', `Age ${min}+`]);
+    else if (max > 0) tags.push(['fa-cake-candles', `Up to age ${max}`]);
+    if (Number(s.maxAnnualIncome) > 0) tags.push(['fa-indian-rupee-sign', `Income up to ${inr(s.maxAnnualIncome)}`]);
+    const sc = String(s.casteCategory || 'ALL').toUpperCase();
+    if (sc !== 'ALL') tags.push(['fa-users', `${sc} category`]);
+    if (s.disabilityRequired) tags.push(['fa-wheelchair', 'Disability certificate']);
+    if (s.studentRequired) tags.push(['fa-graduation-cap', 'Students only']);
+    return tags;
+  }
+
+  function cardHTML(s, i) {
+    const link = safeUrl(s.officialLink);
+    const tel = safeTel(s.helplineNumber);
+    const amount = Number(s.maxBenefitAmount);
+    const online = String(s.applicationMode || '').toLowerCase() === 'online';
+    const tags = eligibilityTags(s);
+    const delay = Math.min(i, 8) * 30;
+
+    return `
+    <article class="card-in bg-white rounded-2xl border border-navy-100 shadow-sm flex flex-col overflow-hidden hover:shadow-md hover:border-navy-200 transition-shadow" style="animation-delay:${delay}ms">
+      <div class="p-5 flex-1 flex flex-col">
+        <div class="flex items-start justify-between gap-2 flex-wrap">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${categoryStyle(s.category)}">
+            <i class="fa-solid ${categoryIcon(s.category)}" aria-hidden="true"></i>${esc(s.category || 'General')}
+          </span>
+          <span class="inline-flex items-center rounded-full bg-saffron-100 text-saffron-700 px-3 py-1 text-xs font-bold" title="Maximum benefit">
+            ${amount > 0 ? 'Up to ' + inr(amount) : 'Benefit in kind'}${s.benefitType ? ' · ' + esc(s.benefitType) : ''}
+          </span>
+        </div>
+
+        <h3 class="font-serif text-xl font-bold text-navy-900 mt-4 leading-snug">${esc(s.title)}</h3>
+
+        <p class="text-slate-700 mt-2 leading-relaxed text-[0.95rem]">${esc(s.plainEnglishSummary || s.description || 'Summary not available yet.')}</p>
+
+        ${tags.length ? `
+        <ul class="flex flex-wrap gap-1.5 mt-4" aria-label="Eligibility rules">
+          ${tags.map(([ic, t]) => `<li class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-slate-100 rounded-md px-2 py-1"><i class="fa-solid ${ic} text-slate-500" aria-hidden="true"></i>${esc(t)}</li>`).join('')}
+        </ul>` : ''}
+
+        <dl class="pt-4 mt-4 border-t border-slate-100 space-y-2 text-sm">
+          <div class="flex items-start gap-2.5">
+            <dt class="text-slate-500 w-5 text-center pt-0.5"><i class="fa-solid ${online ? 'fa-globe' : 'fa-building-columns'}" aria-hidden="true"></i><span class="sr-only">Application mode</span></dt>
+            <dd class="text-slate-800"><span class="font-semibold">${esc(s.applicationMode || 'Not specified')}</span> application</dd>
+          </div>
+          ${s.localOfficeName ? `
+          <div class="flex items-start gap-2.5">
+            <dt class="text-slate-500 w-5 text-center pt-0.5"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span class="sr-only">Local office</span></dt>
+            <dd class="text-slate-800">${esc(s.localOfficeName)}</dd>
+          </div>` : ''}
+          ${tel ? `
+          <div class="flex items-start gap-2.5">
+            <dt class="text-slate-500 w-5 text-center pt-0.5"><i class="fa-solid fa-phone" aria-hidden="true"></i><span class="sr-only">Helpline</span></dt>
+            <dd><a class="text-navy-800 font-semibold hover:underline" href="tel:${esc(tel)}">${esc(s.helplineNumber)}</a></dd>
+          </div>` : ''}
+        </dl>
+      </div>
+
+      <div class="px-5 pb-5">
+        ${link
+          ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer"
+               class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-navy-800 hover:bg-navy-900 text-white font-semibold py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-700 transition-colors">
+               Open official portal <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+               <span class="sr-only">(opens in a new tab)</span>
+             </a>`
+          : `<span class="w-full inline-flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 font-semibold py-2.5">Official link not available</span>`}
+      </div>
+    </article>`;
+  }
+
+  /* ================== FORM HANDLING ================== */
+  function clearErrors() {
+    [el.ageError, el.incomeError].forEach((e) => { e.classList.add('hidden'); e.textContent = ''; });
+    [el.age, el.income].forEach((i) => i.classList.remove('border-red-500'));
+  }
+  function fieldError(input, errEl, msg) {
+    errEl.textContent = msg; errEl.classList.remove('hidden'); input.classList.add('border-red-500');
+  }
+
+  el.form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearErrors();
+    if (!state.schemes.length) return;
+
+    const ageRaw = el.age.value.trim(), incRaw = el.income.value.trim();
+    const age = Number(ageRaw), income = Number(incRaw);
+    let ok = true;
+
+    if (ageRaw === '' || !Number.isFinite(age) || age < 0 || age > 120) {
+      fieldError(el.age, el.ageError, 'Enter your age as a number between 0 and 120.'); ok = false;
+    }
+    if (incRaw === '' || !Number.isFinite(income) || income < 0) {
+      fieldError(el.income, el.incomeError, 'Enter your yearly family income in rupees. Use 0 if there is none.'); ok = false;
+    }
+    if (!ok) { (el.ageError.classList.contains('hidden') ? el.income : el.age).focus(); return; }
+
+    state.profile = {
+      age: Math.floor(age), income,
+      caste: el.caste.value.toUpperCase(),
+      disability: el.disability.checked,
+      student: el.student.checked
+    };
+    render();
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      el.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  function resetAll() {
+    el.form.reset();
+    clearErrors();
+    state.profile = null;
+    state.category = '';
+    el.categoryFilter.value = '';
+    if (state.schemes.length) render();
+  }
+
+  el.resetBtn.addEventListener('click', resetAll);
+  el.emptyResetBtn.addEventListener('click', resetAll);
+  el.retryBtn.addEventListener('click', loadSchemes);
+  el.categoryFilter.addEventListener('change', () => { state.category = el.categoryFilter.value; render(); });
+  el.sortBy.addEventListener('change', () => { state.sort = el.sortBy.value; render(); });
+
+  /* ================== SAMPLE DATA (preview only) ================== */
+  // Used only when the person taps "Preview with sample data" while the backend is offline.
+  const DEMO_SCHEMES = [
+    { schemeId: 'DEMO-001', title: 'Old Age Pension Scheme', category: 'Pension',
+      description: 'Monthly pension for senior citizens below the poverty line.',
+      plainEnglishSummary: 'If you are 60 or older and your family has a low income, you can get a fixed monthly pension paid straight to your bank account.',
+      maxBenefitAmount: 12000, benefitType: 'Yearly', minAge: 60, maxAge: 0, maxAnnualIncome: 100000, casteCategory: 'ALL',
+      disabilityRequired: false, studentRequired: false, applicationMode: 'Offline', localOfficeName: 'Block Development Office',
+      helplineNumber: '1800-111-555', officialLink: 'https://nsap.nic.in' },
+    { schemeId: 'DEMO-002', title: 'Post-Matric Scholarship for SC Students', category: 'Scholarship',
+      description: 'Financial aid for SC students after Class 10.',
+      plainEnglishSummary: 'Covers tuition and maintenance costs for Scheduled Caste students studying after Class 10, so money does not stop you from continuing your education.',
+      maxBenefitAmount: 100000, benefitType: 'Yearly', minAge: 15, maxAge: 35, maxAnnualIncome: 250000, casteCategory: 'SC',
+      disabilityRequired: false, studentRequired: true, applicationMode: 'Online', localOfficeName: 'District Social Welfare Office',
+      helplineNumber: '0120-6619540', officialLink: 'https://scholarships.gov.in' },
+    { schemeId: 'DEMO-003', title: 'Affordable Housing Grant', category: 'Housing',
+      description: 'Support for first-time home builders from low-income families.',
+      plainEnglishSummary: 'Helps low-income families build or buy a first home by reducing the interest on a home loan.',
+      maxBenefitAmount: 267000, benefitType: 'One-time', minAge: 18, maxAge: 70, maxAnnualIncome: 300000, casteCategory: 'ALL',
+      disabilityRequired: false, studentRequired: false, applicationMode: 'Online', localOfficeName: 'Urban Local Body Office',
+      helplineNumber: '1800-11-3377', officialLink: 'https://pmaymis.gov.in' },
+    { schemeId: 'DEMO-004', title: 'Assistive Devices for Persons with Disabilities', category: 'Disability Aid',
+      description: 'Free or subsidised aids such as hearing aids and walking aids.',
+      plainEnglishSummary: 'If you have a disability certificate and a modest income, you can receive free or low-cost aids like hearing aids, wheelchairs and walking sticks.',
+      maxBenefitAmount: 0, benefitType: 'In kind', minAge: 0, maxAge: 0, maxAnnualIncome: 240000, casteCategory: 'ALL',
+      disabilityRequired: true, studentRequired: false, applicationMode: 'Offline', localOfficeName: 'District Disability Rehabilitation Centre',
+      helplineNumber: '1800-180-5129', officialLink: 'https://disabilityaffairs.gov.in' },
+    { schemeId: 'DEMO-005', title: 'OBC Merit Scholarship', category: 'Scholarship',
+      description: 'Merit support for OBC students.',
+      plainEnglishSummary: 'Gives yearly study support to OBC students from families with limited income who are enrolled in a recognised course.',
+      maxBenefitAmount: 48000, benefitType: 'Yearly', minAge: 16, maxAge: 30, maxAnnualIncome: 150000, casteCategory: 'OBC',
+      disabilityRequired: false, studentRequired: true, applicationMode: 'Online', localOfficeName: 'District Backward Classes Office',
+      helplineNumber: '1800-111-000', officialLink: 'https://scholarships.gov.in' },
+    { schemeId: 'DEMO-006', title: 'Senior Citizen Health Cover', category: 'Healthcare',
+      description: 'Hospital cover for senior citizens.',
+      plainEnglishSummary: 'Free hospital treatment up to the cover amount for seniors aged 70 and above, at listed public and private hospitals.',
+      maxBenefitAmount: 500000, benefitType: 'Yearly', minAge: 70, maxAge: 0, maxAnnualIncome: 0, casteCategory: 'ALL',
+      disabilityRequired: false, studentRequired: false, applicationMode: 'Online', localOfficeName: 'Nearest Ayushman Mitra Desk',
+      helplineNumber: '14555', officialLink: 'https://pmjay.gov.in' }
+  ];
+
+  el.demoBtn.addEventListener('click', () => {
+    state.schemes = DEMO_SCHEMES;
+    state.usingDemo = true;
+    afterDataLoaded();
+  });
+
+  /* ================== INIT ================== */
+  loadSchemes();
+})();
+</script>
+</body>
+</html>
